@@ -447,6 +447,8 @@ function selectPresenter(name) {
   const nextBtn = document.getElementById('presenter-next');
   nextBtn.style.opacity = '1';
   nextBtn.style.pointerEvents = 'all';
+  const sel = document.getElementById('rep-input');
+  if(sel) { for(let i=0;i<sel.options.length;i++){ if(sel.options[i].text===name){ sel.selectedIndex=i; break; } } }
 }
 
 function startPresentation() {
