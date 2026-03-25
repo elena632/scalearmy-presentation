@@ -605,7 +605,7 @@ function closeAdminModal() { document.getElementById('admin-modal').style.displa
 function adminPinInput() { document.getElementById('admin-pin-err').textContent=''; }
 function checkAdminPin() {
   const pin=document.getElementById('admin-pin').value;
-  if(pin==='224466') { closeAdminModal(); window.open('/admin','_blank'); }
+  if(pin==='224466') { closeAdminModal(); window.open('/admin.html','_blank'); }
   else { document.getElementById('admin-pin-err').textContent='Incorrect PIN. Try again.'; document.getElementById('admin-pin').value=''; }
 }
 
