@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale Army Presentation Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #0d0d0d; color: #f5f0e8; min-height: 100vh; display: flex; }
+
+        .sidebar { width: 260px; background: #0d0d0d; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-title { padding: 20px; font-family: Georgia, serif; font-size: 14px; font-weight: bold; color: rgba(245,240,232,0.7); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .nav-item { display: block; padding: 12px 20px; color: rgba(245,240,232,0.7); text-decoration: none; cursor: pointer; transition: all 0.3s ease; margin: 4px 10px; border-radius: 6px; text-align: left; border: none; background: none; font-size: 14px; width: calc(100% - 20px); }
+        .nav-item:hover { background: rgba(255,90,40,0.1); color: #ff5a28; }
+        .nav-item.active { background: #ff5a28; color: #0d0d0d; font-weight: 600; }
+        .nav-spacer { flex: 1; }
+        .back-link { padding: 12px 20px; margin: 10px; text-decoration: none; color: rgba(245,240,232,0.5); font-size: 13px; border-top: 1px solid rgba(255,255,255,0.08); display: block; transition: color 0.3s ease; }
+        .back-link:hover { color: #ff5a28; }
+
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; height: 100vh; }
+        .top-bar { background: #1a1a1a; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 20px 40px; display: flex; align-items: center; gap: 20px; }
+        .top-bar h1 { font-family: Georgia, serif; font-size: 24px; font-weight: normal; color: #f5f0e8; }
+        .top-bar .section-name { color: rgba(245,240,232,0.5); font-size: 16px; margin-left: auto; }
+        .content-wrapper { flex: 1; overflow-y: auto; padding: 40px; }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-weight: 500; }
+        .btn-primary { background: #ff5a28; color: #0d0d0d; }
+        .btn-primary:hover { background: #ff7548; }
+        .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #f5f0e8; }
+        .btn-secondary:hover { background: rgba(255,90,40,0.1); border-color: #ff5a28; color: #ff5a28; }
+        .btn-danger { background: #d32f2f; color: white; }
+        .btn-danger:hover { background: #f44336; }
+        .btn-small { padding: 8px 16px; font-size: 12px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 13px; color: rgba(245,240,232,0.8); font-weight: 500; }
+        input[type="text"], input[type="url"], select, textarea { width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #f5f0e8; font-size: 14px; transition: border-color 0.3s ease; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #ff5a28; }
+
+        .card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+        .card-header { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+        .card-header:hover { background: rgba(255,90,40,0.05); }
+        .card-header h3 { font-family: Georgia, serif; font-size: 18px; font-weight: normal; }
+        .toggle-icon { color: #ff5a28; transition: transform 0.3s; }
+        .card-header.collapsed .toggle-icon { transform: rotate(90deg); }
+        .card-body { padding: 24px; border-top: 1px solid rgba(255,255,255,0.06); display: none; }
+        .card-body.expanded { display: block; }
+
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .round-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .round-section-header h2 { font-family: Georgia, serif; font-size: 20px; font-weight: normal; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+        .summary-card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px; text-align: center; }
+        .summary-card .number { font-size: 36px; font-weight: 700; color: #ff5a28; font-family: Georgia, serif; }
+        .summary-card .label { font-size: 12px; color: rgba(245,240,232,0.5); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 32px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+        th { color: rgba(245,240,232,0.5); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .status-green { color: #4ade80; } .status-orange { color: #fb923c; } .status-red { color: #f87171; }
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(245,240,232,0.5); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); position: static; }
+            .main-content { margin-left: 0; height: auto; }
+            .content-wrapper { padding: 20px; }
+            .field-row { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-title">Scale Army</div>
+        <button class="nav-item active" data-section="video-library" onclick="openSection('video-library')">📹 Video Library</button>
+        <button class="nav-item" data-section="analytics" onclick="openSection('analytics')">📊 Analytics</button>
+        <button class="nav-item" data-section="calendly" onclick="openSection('calendly')">🔗 Calendly Link</button>
+        <button class="nav-item" data-section="logos" onclick="openSection('logos')">🖼️ Client Logos</button>
+        <div class="nav-spacer"></div>
+        <a href="/" class="back-link">← Back to Presentation</a>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <h1>Scale Army Admin</h1>
+            <div class="section-name" id="section-name">Video Library</div>
+        </div>
+
+        <div class="content-wrapper">
+
+            <!-- Video Library -->
+            <div class="section active" id="video-library">
+                <div class="round-section-header">
+                    <h2>Video Library</h2>
+                    <button class="btn btn-primary" onclick="saveAllSlides()">Save All Slides</button>
+                </div>
+                <div id="rounds-container"></div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="section" id="analytics">
+                <div class="round-section-header">
+                    <h2>Analytics Dashboard</h2>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn btn-secondary" onclick="loadAnalytics()">Refresh</button>
+                        <button class="btn btn-danger" onclick="clearAnalyticsConfirm()">Clear All Data</button>
+                    </div>
+                </div>
+                <div id="analytics-content"></div>
+            </div>
+
+            <!-- Calendly -->
+            <div class="section" id="calendly">
+                <div class="round-section-header" style="margin-bottom:32px;">
+                    <h2>Calendly Link</h2>
+                </div>
+                <div style="max-width:560px;">
+                    <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:32px;">
+                        <p style="color:rgba(245,240,232,0.6); font-size:14px; margin:0 0 24px 0; line-height:1.6;">Paste your Calendly booking link below. This is the link shown at the end of the presentation.</p>
+                        <label style="display:block; font-size:12px; font-weight:600; color:rgba(245,240,232,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Booking Link</label>
+                        <input id="calendly-url" type="url" placeholder="https://calendly.com/your-link" style="width:100%; padding:14px 16px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.1); background:#2a2a2a; color:#f5f0e8; font-size:15px; outline:none; box-sizing:border-box; margin-bottom:20px;" onfocus="this.style.borderColor='#ff5a28'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <button onclick="saveCalendly()" style="background:#ff5a28; color:#fff; border:none; border-radius:10px; padding:12px 28px; font-size:15px; font-weight:600; cursor:pointer;">Save Link</button>
+                            <span id="calendly-saved" style="color:#4ade80; font-size:14px; opacity:0; transition:opacity 0.3s;">✓ Saved!</span>
+                        </div>
+                        <div style="margin-top:24px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06);">
+                            <p style="color:rgba(245,240,232,0.4); font-size:13px; margin:0;">Current link: <span id="calendly-current" style="color:rgba(245,240,232,0.7); font-style:italic;">Not set</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logos -->
+            <div class="section" id="logos">
+                <div style="margin-bottom:24px;">
+                    <h3 style="font-size:20px; margin-bottom:8px;">Client Logos</h3>
+                    <p style="color:rgba(245,240,232,0.5); font-size:14px;">Upload your client logos. They appear on the trust signals slide. PNG with transparent background works best.</p>
+                </div>
+                <div id="logo-upload-area" style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:24px;"></div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <input type="file" id="logo-file-input" accept="image/png,image/svg+xml,image/jpeg" style="display:none;" onchange="handleLogoUpload(this)" multiple>
+                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file-input').click()" type="button">📁 Upload Logo(s)</button>
+                    <button class="btn btn-primary" onclick="saveLogos()" type="button">Save Logos</button>
+                </div>
+                <p id="logos-saved" style="color:#4ade80; margin-top:12px; opacity:0; transition:opacity .4s; font-size:14px;">✅ Logos saved!</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _supa = window.supabase?.createClient('https://joyphdcyepmihdrkneqb.supabase.co', 'sb_publishable_VQbBQERopgFO6YLQBvOJFw_AWNtblKD');
+        const APP_TYPE = 'presentation';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadRounds();
+            await loadAnalytics();
+        });
+
+        function openSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.dataset.section === sectionName) item.classList.add('active');
+            });
+            const titles = { 'video-library':'Video Library', 'analytics':'Analytics', 'calendly':'Calendly Link', 'logos':'Client Logos' };
+            document.getElementById('section-name').textContent = titles[sectionName] || '';
+            if(sectionName === 'analytics') loadAnalytics();
+            if(sectionName === 'logos') loadLogosAdmin();
+            if(sectionName === 'calendly') loadCalendly();
+        }
+
+        async function loadRounds() {
+            let rounds = Array.from({length: 5}, () => ({ videoUrl:'', candidateName:'', role:'', hireAmount:'', savingsLine:'' }));
+            try {
+                if(_supa) {
+                    const { data } = await _supa.from('config').select('rounds').eq('app_type', APP_TYPE).single();
+                    if(data && data.rounds && Array.isArray(data.rounds)) {
+                        data.rounds.forEach((r, i) => { if(i < 5) rounds[i] = Object.assign(rounds[i], r); });
+                    }
+                }
+            } catch(e) {}
+            const container = document.getElementById('rounds-container');
+            if(!container) return;
+            container.innerHTML = '';
+            rounds.forEach((round, index) => container.appendChild(createSlideCard(round, index)));
+        }
+
+        function createSlideCard(roundData, roundIndex) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const header = document.createElement('div');
+            header.className = 'card-header';
+            header.innerHTML = `<h3>Slide ${roundIndex + 1}</h3><span class="toggle-icon">▶</span>`;
+
+            const body = document.createElement('div');
+            body.className = 'card-body';
+
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>Video File</label>
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                        <input type="file" id="file-input-${roundIndex}" accept="video/mp4,video/*" style="display:none;" onchange="handleVideoUpload(${roundIndex}, this)">
+                        <button class="btn btn-secondary btn-small" onclick="document.getElementById('file-input-${roundIndex}').click()" type="button">📁 Choose Video</button>
+                        <span id="video-status-${roundIndex}" style="font-size:13px; color:rgba(245,240,232,0.6);">${roundData.videoUrl ? '✅ ' + (roundData.videoUrl.split('/').pop() || 'Video uploaded') : 'No video uploaded'}</span>
+                        <input type="hidden" class="video-url" value="${roundData.videoUrl || ''}">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label>Candidate Name</label>
+                        <input type="text" class="candidate-name" placeholder="e.g. Maria Santos" value="${roundData.candidateName || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" class="role" placeholder="e.g. Senior Developer" value="${roundData.role || ''}">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label>Hire Amount</label>
+                        <input type="text" class="hire-amount" placeholder="e.g. $4,200/mo" value="${roundData.hireAmount || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Savings Line</label>
+                        <input type="text" class="savings-line" placeholder="e.g. 68% less than a comparable U.S. hire" value="${roundData.savingsLine || ''}">
+                    </div>
+                </div>
+                <div style="margin-top:20px;">
+                    <button class="btn btn-primary" onclick="saveSlide(${roundIndex})">Save Slide ${roundIndex + 1}</button>
+                </div>`;
+
+            header.addEventListener('click', () => {
+                body.classList.toggle('expanded');
+                header.classList.toggle('collapsed');
+            });
+
+            card.appendChild(header);
+            card.appendChild(body);
+            return card;
+        }
+
+        async function handleVideoUpload(roundIndex, input) {
+            const file = input.files[0];
+            if(!file) return;
+            const statusEl = document.getElementById(`video-status-${roundIndex}`);
+            statusEl.textContent = '⏳ Uploading...';
+            statusEl.style.color = 'rgba(245,240,232,0.8)';
+            try {
+                const fileName = `presentation-${roundIndex}-${Date.now()}.mp4`;
+                const { data, error } = await _supa.storage.from('videos').upload(fileName, file, { upsert: true, contentType: 'video/mp4' });
+                if(error) throw error;
+                const { data: urlData } = _supa.storage.from('videos').getPublicUrl(fileName);
+                const card = document.querySelectorAll('.card')[roundIndex];
+                card.querySelector('.video-url').value = urlData.publicUrl;
+                statusEl.textContent = '✅ ' + file.name;
+                statusEl.style.color = '#4ade80';
+            } catch(e) {
+                statusEl.textContent = '❌ Upload failed: ' + (e.message || 'unknown error');
+                statusEl.style.color = '#f87171';
+            }
+        }
+
+        function getSlideData(roundIndex) {
+            const card = document.querySelectorAll('.card')[roundIndex];
+            return {
+                videoUrl:      card.querySelector('.video-url').value || '',
+                candidateName: card.querySelector('.candidate-name').value || '',
+                role:          card.querySelector('.role').value || '',
+                hireAmount:    card.querySelector('.hire-amount').value || '',
+                savingsLine:   card.querySelector('.savings-line').value || ''
+            };
+        }
+
+        async function saveSlide(roundIndex) {
+            const roundData = getSlideData(roundIndex);
+            let rounds = Array.from({length:5}, () => ({videoUrl:'',candidateName:'',role:'',hireAmount:'',savingsLine:''}));
+            try {
+                if(_supa) {
+                    const { data } = await _supa.from('config').select('rounds').eq('app_type', APP_TYPE).single();
+                    if(data && data.rounds) data.rounds.forEach((r,i) => { if(i<5) rounds[i]=Object.assign(rounds[i],r); });
+                }
+            } catch(e) {}
+            rounds[roundIndex] = roundData;
+            try {
+                if(_supa) {
+                    const ts = new Date().toISOString();
+                    await _supa.from('config').update({ rounds, updated_at: ts, last_updated: ts }).eq('app_type', APP_TYPE);
+                }
+            } catch(e) { localStorage.setItem('sa_rounds', JSON.stringify(rounds)); }
+            alert(`Slide ${roundIndex + 1} saved!`);
+        }
+
+        async function saveAllSlides() {
+            const rounds = [];
+            for(let i = 0; i < 5; i++) {
+                const card = document.querySelectorAll('.card')[i];
+                if(!card) { rounds.push({videoUrl:'',candidateName:'',role:'',hireAmount:'',savingsLine:''}); continue; }
+                rounds.push(getSlideData(i));
+            }
+            try {
+                if(_supa) {
+                    const ts = new Date().toISOString();
+                    await _supa.from('config').update({ rounds, updated_at: ts, last_updated: ts }).eq('app_type', APP_TYPE);
+                }
+            } catch(e) { localStorage.setItem('sa_rounds', JSON.stringify(rounds)); }
+            alert('All slides saved!');
+        }
+
+        async function loadAnalytics() {
+            let analytics = [];
+            try {
+                if(_supa) {
+                    const { data } = await _supa.from('analytics').select('*').eq('app_type', APP_TYPE).order('created_at', { ascending: false });
+                    if(data) analytics = data;
+                }
+            } catch(e) { analytics = JSON.parse(localStorage.getItem('sa_analytics') || '[]'); }
+
+            const el = document.getElementById('analytics-content');
+            if(analytics.length === 0) {
+                el.innerHTML = '<div class="empty-state"><div style="font-size:48px;">📊</div><p>No data yet. Analytics will appear here once presentations have been run.</p></div>';
+                return;
+            }
+
+            const total = analytics.length;
+            const conversions = analytics.filter(a => a.converted).length;
+            const convRate = (conversions / total * 100).toFixed(1);
+
+            const byRep = {};
+            analytics.forEach(e => {
+                if(!byRep[e.rep]) byRep[e.rep] = { sessions:0, conversions:0 };
+                byRep[e.rep].sessions++;
+                if(e.converted) byRep[e.rep].conversions++;
+            });
+
+            let html = `
+                <div class="summary-grid">
+                    <div class="summary-card"><div class="number">${total}</div><div class="label">Total Sessions</div></div>
+                    <div class="summary-card"><div class="number">${conversions}</div><div class="label">Conversions</div></div>
+                    <div class="summary-card"><div class="number">${convRate}%</div><div class="label">Conversion Rate</div></div>
+                </div>
+                <h3 style="margin-bottom:20px; font-family:Georgia,serif; font-size:18px;">Per-Presenter Breakdown</h3>
+                <div class="table-wrapper"><table>
+                    <thead><tr><th>Presenter</th><th>Sessions</th><th>Conversions</th><th>Conv. Rate</th></tr></thead>
+                    <tbody>`;
+
+            for(const [rep, d] of Object.entries(byRep)) {
+                const cr = (d.conversions / d.sessions * 100).toFixed(1);
+                const cls = cr >= 50 ? 'status-green' : cr >= 20 ? 'status-orange' : 'status-red';
+                html += `<tr><td>${rep}</td><td>${d.sessions}</td><td>${d.conversions}</td><td class="${cls}">${cr}%</td></tr>`;
+            }
+
+            html += `</tbody></table></div>
+                <h3 style="margin-bottom:20px; font-family:Georgia,serif; font-size:18px;">Session Log</h3>
+                <div class="table-wrapper"><table>
+                    <thead><tr><th>Date</th><th>Presenter</th><th>Booked?</th></tr></thead>
+                    <tbody>`;
+
+            analytics.forEach(e => {
+                html += `<tr><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.rep}</td><td>${e.converted ? '✅ Yes' : '—'}</td></tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            el.innerHTML = html;
+        }
+
+        async function clearAnalyticsConfirm() {
+            if(!confirm('Clear ALL analytics data? This cannot be undone.')) return;
+            try { if(_supa) await _supa.from('analytics').delete().eq('app_type', APP_TYPE); } catch(e) {}
+            localStorage.removeItem('sa_analytics');
+            loadAnalytics();
+        }
+
+        async function loadCalendly() {
+            let url = '';
+            try {
+                if(_supa) {
+                    const { data } = await _supa.from('config').select('calendly_url').eq('app_type', APP_TYPE).single();
+                    if(data) url = data.calendly_url || '';
+                }
+            } catch(e) { url = localStorage.getItem('sa_calendly') || ''; }
+            document.getElementById('calendly-url').value = url;
+            document.getElementById('calendly-current').textContent = url || 'Not set';
+        }
+
+        async function saveCalendly() {
+            const url = document.getElementById('calendly-url').value.trim();
+            try {
+                if(_supa) await _supa.from('config').update({ calendly_url: url }).eq('app_type', APP_TYPE);
+            } catch(e) { localStorage.setItem('sa_calendly', url); }
+            document.getElementById('calendly-current').textContent = url || 'Not set';
+            const msg = document.getElementById('calendly-saved');
+            msg.style.opacity = '1';
+            setTimeout(() => msg.style.opacity = '0', 2000);
+        }
+
+        let _pendingLogoUrls = [];
+
+        async function loadLogosAdmin() {
+            try {
+                if(!_supa) return;
+                const { data } = await _supa.from('config').select('logos').eq('app_type', APP_TYPE).single();
+                _pendingLogoUrls = (data && data.logos) ? [...data.logos] : [];
+                renderLogoGrid();
+            } catch(e) {}
+        }
+
+        function renderLogoGrid() {
+            const area = document.getElementById('logo-upload-area');
+            if(!area) return;
+            if(_pendingLogoUrls.length === 0) { area.innerHTML = '<p style="color:rgba(245,240,232,0.4); font-size:14px;">No logos uploaded yet.</p>'; return; }
+            area.innerHTML = _pendingLogoUrls.map((url, i) => `
+                <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:10px; min-width:120px;">
+                    <img src="${url}" style="height:48px; width:auto; max-width:120px; object-fit:contain; opacity:0.9;">
+                    <button onclick="removeLogo(${i})" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer;">Remove</button>
+                </div>`).join('');
+        }
+
+        function removeLogo(index) { _pendingLogoUrls.splice(index, 1); renderLogoGrid(); }
+
+        async function handleLogoUpload(input) {
+            for(const file of Array.from(input.files)) {
+                const ext = file.name.split('.').pop();
+                const fileName = `logo-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                try {
+                    const { error } = await _supa.storage.from('logos').upload(fileName, file, { upsert: true });
+                    if(error) throw error;
+                    const { data: urlData } = _supa.storage.from('logos').getPublicUrl(fileName);
+                    _pendingLogoUrls.push(urlData.publicUrl);
+                    renderLogoGrid();
+                } catch(e) { alert('Upload failed: ' + (e.message || 'unknown error')); }
+            }
+            input.value = '';
+        }
+
+        async function saveLogos() {
+            try {
+                if(_supa) {
+                    const ts = new Date().toISOString();
+                    let { error } = await _supa.from('config').upsert({ app_type: APP_TYPE, logos: _pendingLogoUrls, last_updated: ts }, { onConflict: 'app_type' });
+                    if(error && error.message && error.message.includes('last_updated')) {
+                        const res = await _supa.from('config').upsert({ app_type: APP_TYPE, logos: _pendingLogoUrls }, { onConflict: 'app_type' });
+                        error = res.error;
+                    }
+                    if(error) throw error;
+                }
+                const msg = document.getElementById('logos-saved');
+                msg.style.opacity = '1';
+                setTimeout(() => msg.style.opacity = '0', 2000);
+            } catch(e) { alert('Save failed: ' + e.message); }
+        }
+    </script>
+</body>
+</html>
