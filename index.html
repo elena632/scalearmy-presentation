@@ -95,6 +95,11 @@ p, .body { color: var(--cream-70); }
 /* ── Presenter input ── */
 .rep-select { width: 100%; padding: 14px 18px; border-radius: 14px; background: var(--surface); border: 2px solid var(--cream-15); color: var(--cream); font-family: var(--sans); font-size: 16px; font-weight: 600; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; }
 .rep-select:focus { border-color: var(--orange); }
+/* ── Presenter picker ── */
+.presenter-opt { width:100%; padding:16px; border-radius:14px; background:var(--surface); border:2px solid var(--cream-15); color:var(--cream); font-family:var(--sans); font-size:17px; font-weight:600; cursor:pointer; transition:all .2s; }
+.presenter-opt:hover { border-color:var(--orange); background:var(--orange-lo); }
+.presenter-opt.selected { border-color:var(--orange); background:var(--orange-lo); color:var(--orange); }
+
 
 /* ── Role display on game screen ── */
 .slide-role { font-family: var(--serif); font-size: clamp(28px,4vw,48px); font-weight: 700; color: var(--cream); line-height: 1.1; margin-top: 14px; text-align: center; }
@@ -145,7 +150,7 @@ p, .body { color: var(--cream-70); }
       Top 1% nearshore talent — rigorously vetted professionals with deep experience in <strong style="color:var(--cream);">AI</strong> and proven strength in <strong style="color:var(--cream);">ecommerce</strong>. The right hire, at a fraction of the cost.
     </p>
     <div style="margin-top:48px;">
-      <button class="btn btn-orange btn-lg" onclick="goto('s-stats')" style="justify-content:center;">See Our Track Record &nbsp;→</button>
+      <button class="btn btn-orange btn-lg" onclick="goto('s-presenter')" style="justify-content:center;">Get Started &nbsp;→</button>
       <p style="font-size:12px; color:var(--cream-40); margin-top:16px;">Select a presenter before starting</p>
     </div>
   </div>
@@ -154,6 +159,22 @@ p, .body { color: var(--cream-70); }
 <!-- ══════════════════════════════════════════
      SCREEN 2 · STATS
 ══════════════════════════════════════════ -->
+<div class="screen" id="s-presenter">
+  <div style="text-align:center; max-width:420px; width:100%;">
+    <div class="tag" style="margin-bottom:18px;">Step 1 of 2</div>
+    <h2 class="h1" style="font-size:clamp(26px,3.5vw,42px); margin-bottom:12px;">Who's presenting today?</h2>
+    <p style="color:var(--cream-40); font-size:15px; margin-bottom:36px;">Select your name to log this session.</p>
+    <div id="presenter-btns" style="display:flex; flex-direction:column; gap:12px; margin-bottom:36px;">
+      <button class="presenter-opt" onclick="selectPresenter('Dijah')">Dijah</button>
+      <button class="presenter-opt" onclick="selectPresenter('Alex')">Alex</button>
+      <button class="presenter-opt" onclick="selectPresenter('Mira')">Mira</button>
+      <button class="presenter-opt" onclick="selectPresenter('Ana')">Ana</button>
+      <button class="presenter-opt" onclick="selectPresenter('Laura')">Laura</button>
+    </div>
+    <button class="btn btn-orange btn-lg" id="presenter-next" onclick="goto('s-stats')" style="justify-content:center; opacity:0.4; pointer-events:none; width:100%;">See Our Track Record &nbsp;→</button>
+  </div>
+</div>
+
 <div class="screen" id="s-stats">
   <div style="max-width:540px; width:100%;">
     <div class="sa-logo tc mb-4" style="justify-content:center; font-size:72px;">
@@ -284,9 +305,8 @@ p, .body { color: var(--cream-70); }
 <div class="pbar" id="pbar">
   <select id="rep-input" class="rep-select" style="max-width:160px; font-size:11px; padding:5px 10px; border-radius:8px;">
     <option value="">Presenter…</option>
-    <option>Alex</option><option>Jordan</option><option>Morgan</option>
-    <option>Taylor</option><option>Casey</option><option>Riley</option>
-    <option>Avery</option><option>Quinn</option><option>Elena</option>
+    <option>Dijah</option><option>Alex</option><option>Mira</option>
+    <option>Ana</option><option>Laura</option>
   </select>
   <button class="pbtn on"  id="pb-cover" onclick="goto('s-cover')">Cover</button>
   <button class="pbtn"     id="pb-stats" onclick="goto('s-stats')">Stats</button>
@@ -419,6 +439,16 @@ function jumpSlide(n) {
 }
 
 /* ── Presentation flow ── */
+function selectPresenter(name) {
+  repName = name;
+  document.querySelectorAll('.presenter-opt').forEach(b => {
+    b.classList.toggle('selected', b.textContent === name);
+  });
+  const nextBtn = document.getElementById('presenter-next');
+  nextBtn.style.opacity = '1';
+  nextBtn.style.pointerEvents = 'all';
+}
+
 function startPresentation() {
   const sel=document.getElementById('rep-input');
   const val=sel.value.trim();
@@ -552,6 +582,9 @@ function proceedToSlide() { loadSlide(cur); goto('s-slide'); }
 function resetPresentation() {
   cur=0; repName="";
   document.getElementById('rep-input').value='';
+  document.querySelectorAll('.presenter-opt').forEach(b=>b.classList.remove('selected'));
+  const nb=document.getElementById('presenter-next');
+  if(nb){nb.style.opacity='0.4';nb.style.pointerEvents='none';}
   goto('s-cover');
 }
 
@@ -613,7 +646,8 @@ function checkAdminPin() {
 document.addEventListener('keydown',e=>{
   const a=document.querySelector('.screen.active')?.id;
   if(e.key==='ArrowRight') {
-    if(a==='s-cover') goto('s-stats');
+    if(a==='s-cover') goto('s-presenter');
+    else if(a==='s-presenter') goto('s-stats');
     else if(a==='s-stats') { if(activeRounds.length) { loadSlide(0); goto('s-slide'); } }
     else if(a==='s-slide') advance();
   }
