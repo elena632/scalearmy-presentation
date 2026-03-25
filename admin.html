@@ -176,7 +176,7 @@
         }
 
         async function loadRounds() {
-            let rounds = Array.from({length: 5}, () => ({ videoUrl:'', candidateName:'', role:'', hireAmount:'', savingsLine:'' }));
+            let rounds = Array.from({length: 10}, () => ({ videoUrl:'', candidateName:'', role:'', hireAmount:'', savingsLine:'' }));
             try {
                 if(_supa) {
                     const { data } = await _supa.from('config').select('rounds').eq('app_type', APP_TYPE).single();
@@ -280,7 +280,7 @@
 
         async function saveSlide(roundIndex) {
             const roundData = getSlideData(roundIndex);
-            let rounds = Array.from({length:5}, () => ({videoUrl:'',candidateName:'',role:'',hireAmount:'',savingsLine:''}));
+            let rounds = Array.from({length:10}, () => ({videoUrl:'',candidateName:'',role:'',hireAmount:'',savingsLine:''}));
             try {
                 if(_supa) {
                     const { data } = await _supa.from('config').select('rounds').eq('app_type', APP_TYPE).single();
